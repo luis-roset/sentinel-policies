@@ -1,6 +1,4 @@
-mock "tfplan/v2" {
-  module {
-    source = "mock-tfplan-v2.sentinel"
-  }
+policy "cost-policy" {
+    source = "./cost-policy.sentinel"
+    enforcement_level = "hard-mandatory"
 }
-

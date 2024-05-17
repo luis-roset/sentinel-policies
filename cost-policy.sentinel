@@ -1,0 +1,27 @@
+import "tfplan"
+import "tfrun"
+import "cost"
+
+# Define the maximum allowed cost
+max_cost = 100.00
+
+# Retrieve the cost estimate from the Terraform run
+cost_estimate = cost.estimate
+
+# Ensure the cost estimate is available
+main = rule {
+    cost_estimate is not null
+}
+
+# Calculate the total monthly cost
+total_monthly_cost = cost_estimate.monthly_cost
+
+# Check if the total monthly cost is within the allowed limit
+check_cost = rule {
+    total_monthly_cost <= max_cost
+}
+
+# Combine the rules
+main = rule {
+    main and check_cost
+}
