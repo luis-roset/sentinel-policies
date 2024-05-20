@@ -1,4 +1,3 @@
-policy "cost-policy" {
-    source = "./cost-policy.sentinel"
-    enforcement_level = "hard-mandatory"
+policy "limit-cost-by-budget" {
+    enforcement_level = "soft-mandatory"
 }

@@ -1,27 +1,45 @@
-import "tfplan"
+# This policy uses the Sentinel tfrun import to restrict the
+# proposed monthly cost that would be incurred if the current
+# plan were applied, using a variable budget.
+
+##### Imports #####
+
 import "tfrun"
-import "cost"
+import "decimal"
 
-# Define the maximum allowed cost
-max_cost = 100.00
+##### Functions #####
 
-# Retrieve the cost estimate from the Terraform run
-cost_estimate = cost.estimate
+# Validate that the proposed monthly cost is less than the limit
+limit_cost_by_workspace_type = func(limit) {
+  
+    # Get workspace name
+    workspace_name = tfrun.workspace.name
 
-# Ensure the cost estimate is available
-main = rule {
-    cost_estimate is not null
+
+
+  # Determine proposed monthly cost
+  proposed_cost = decimal.new(tfrun.cost_estimate.proposed_monthly_cost)
+
+  # Compare proposed monthly cost to the limit
+  if proposed_cost.lte(limit) {
+    print("Proposed monthly cost", proposed_cost.string,
+          "USD of workspace", workspace_name,
+          "is under the limit:", limit.string, "USD")
+    return true
+  } else {
+    print("Proposed monthly cost", proposed_cost.string,
+          "USD of workspace", workspace_name,
+          "is over the limit:", limit.string, "USD")
+    return false
+  }
 }
 
-# Calculate the total monthly cost
-total_monthly_cost = cost_estimate.monthly_cost
+##### Monthly Limit #####
+limit = decimal.new(300)
 
-# Check if the total monthly cost is within the allowed limit
-check_cost = rule {
-    total_monthly_cost <= max_cost
-}
 
-# Combine the rules
+##### Rules #####
+cost_validated = limit_cost_by_workspace_type(limit)
 main = rule {
-    main and check_cost
+  cost_validated
 }
