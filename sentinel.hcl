@@ -1,3 +1,7 @@
+module "tfplan-functions" {
+  source = "./common-functions/tfplan-functions/tfplan-functions.sentinel"
+}
+
 policy "limit-cost-by-budget" {
     enforcement_level = "soft-mandatory"
 }
